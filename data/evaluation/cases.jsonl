@@ -1,0 +1,6 @@
+{"id": "confirmation", "rail": "SUCCESS", "provider": "SUCCESS", "debit": "DEBITED", "confirmation": "FAILED", "expected": "PAID_CONFIRMATION_MISSING"}
+{"id": "paid", "rail": "SUCCESS", "provider": "SUCCESS", "debit": "DEBITED", "confirmation": "ACKNOWLEDGED", "expected": "PAID"}
+{"id": "pending", "rail": "PENDING", "provider": "PENDING", "debit": "DEBITED", "confirmation": "NOT_SENT", "expected": "PENDING_FINALITY"}
+{"id": "conflict", "rail": "SUCCESS", "provider": "FAILED", "debit": "DEBITED", "confirmation": "NOT_SENT", "expected": "EVIDENCE_CONFLICT"}
+{"id": "missing", "rail": "SUCCESS", "provider": null, "debit": "DEBITED", "confirmation": "NOT_SENT", "expected": "MISSING_EVIDENCE"}
+{"id": "failed", "rail": "FAILED", "provider": "FAILED", "debit": "DEBITED", "confirmation": "NOT_SENT", "expected": "FAILED"}

@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: finflow
+      POSTGRES_USER: finflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://finflow:${POSTGRES_PASSWORD}@postgres:5432/finflow
+      DEMO_API_TOKEN: ${DEMO_API_TOKEN:-finflow-local-demo}
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      WORKFLOW_SECRET: ${WORKFLOW_SECRET:-}
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  n8n:
+    image: n8nio/n8n:1.117.3
+    profiles: ["workflows"]
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?Set a persistent N8N_ENCRYPTION_KEY}
+      WORKFLOW_SECRET: ${WORKFLOW_SECRET:-}
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+    ports: ["127.0.0.1:5678:5678"]
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/workflows:ro
+volumes:
+  postgres_data:
+  n8n_data:

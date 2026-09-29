@@ -1,0 +1,11 @@
+.env
+.venv/
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+*.db
+tmp/
+*.log
+.npm-cache/
+*.tsbuildinfo

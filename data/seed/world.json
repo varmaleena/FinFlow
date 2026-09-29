@@ -1,0 +1,13 @@
+{
+  "merchants": [{"id":"m_001","name":"Ramesh Kirana","owner":"Ramesh","segment":"Grocery & essentials","language":"hi-IN"},{"id":"m_002","name":"Anita Fashions","owner":"Anita","segment":"Apparel & accessories","language":"en-IN"},{"id":"m_003","name":"Suresh Mobile","owner":"Suresh","segment":"Electronics","language":"en-IN"}],
+  "transactions": [
+    {"id":"tx_1001","merchant_id":"m_001","amount":2000,"customer":"Customer ••4821","time":"10:42 AM","customer_debit":"DEBITED","rail_status":"SUCCESS","paytm_status":"SUCCESS","confirmation":"FAILED","attempts":1},
+    {"id":"tx_1002","merchant_id":"m_001","amount":850,"customer":"Customer ••1906","time":"10:36 AM","customer_debit":"DEBITED","rail_status":"PENDING","paytm_status":"PENDING","confirmation":"NOT_SENT","attempts":0},
+    {"id":"tx_1003","merchant_id":"m_001","amount":1240,"customer":"Customer ••7130","time":"10:28 AM","customer_debit":"DEBITED","rail_status":"SUCCESS","paytm_status":"SUCCESS","confirmation":"ACKNOWLEDGED","attempts":1},
+    {"id":"tx_1004","merchant_id":"m_001","amount":560,"customer":"Customer ••0092","time":"10:14 AM","customer_debit":"DEBITED","rail_status":"SUCCESS","paytm_status":"SUCCESS","confirmation":"ACKNOWLEDGED","attempts":1},
+    {"id":"tx_1005","merchant_id":"m_002","amount":3200,"customer":"Customer ••1028","time":"10:05 AM","customer_debit":"DEBITED","rail_status":"SUCCESS","paytm_status":"FAILED","confirmation":"NOT_SENT","attempts":0},
+    {"id":"tx_1006","merchant_id":"m_003","amount":1800,"customer":"Customer ••3910","time":"09:58 AM","customer_debit":"DEBITED","rail_status":"PENDING","paytm_status":"PENDING","confirmation":"NOT_SENT","attempts":0}
+  ],
+  "batches": [{"id":"st_2001","merchant_id":"m_001","gross":28450,"refunds":1200,"fees":142.25,"adjustments":500,"credited":26607.75,"status":"CREDITED","date":"2026-09-28"},{"id":"st_2002","merchant_id":"m_002","gross":42000,"refunds":2500,"fees":210,"adjustments":0,"credited":38000,"status":"CREDITED","date":"2026-09-28"},{"id":"st_2003","merchant_id":"m_003","gross":19500,"refunds":0,"fees":97.5,"adjustments":0,"credited":19402.5,"status":"CREDITED","date":"2026-09-28"}],
+  "cashflow": [{"day":"Tue","inflow":18200,"outflow":11200},{"day":"Wed","inflow":22400,"outflow":14500},{"day":"Thu","inflow":19100,"outflow":12100},{"day":"Fri","inflow":26300,"outflow":16700},{"day":"Sat","inflow":31800,"outflow":18200},{"day":"Sun","inflow":24100,"outflow":15700},{"day":"Mon","inflow":28450,"outflow":16900}]
+}

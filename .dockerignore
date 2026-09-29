@@ -1,0 +1,8 @@
+**/node_modules
+**/.npm-cache
+**/dist
+**/__pycache__
+.env
+*.db
+.venv
+tmp

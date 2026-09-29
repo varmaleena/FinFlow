@@ -1,0 +1,6 @@
+[
+ {"id":"payment_confirmation_retry_v1","text":"Retry a merchant notification only when both rail and provider confirm success, confirmation is missing, and fewer than three attempts were made. Verify merchant acknowledgement before claiming success."},
+ {"id":"pending_monitor_v1","text":"A payment pending after debit must never trigger duplicate collection. Recheck twice, then escalate unresolved evidence for human review."},
+ {"id":"settlement_formula_v1","text":"Expected settlement equals gross collections less refunds, processing fees and batch adjustments. Compare this amount to the actual credited batch."},
+ {"id":"credit_assumptions_v1","text":"Credit scenarios are illustrations, not eligibility decisions or loan offers. Disclose principal, duration, reducing-balance annual rate, total interest and excluded fees."}
+]
