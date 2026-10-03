@@ -13,6 +13,21 @@ from apps.api.app.domain.payment_events import event, twin, decide, digest
 from apps.api.app.services import resolve_ai
 
 OPS = {'Authorization': 'Bearer resolve-operations-demo'}
+
+def test_inaccessible_vertex_credentials_fall_back(monkeypatch):
+    from apps.api.app.services import gemini_transport as transport
+    monkeypatch.setenv('GOOGLE_GENAI_USE_VERTEXAI', 'true')
+    monkeypatch.setenv('GOOGLE_CLOUD_PROJECT', 'test-project')
+    monkeypatch.delenv('GOOGLE_APPLICATION_CREDENTIALS', raising=False)
+    monkeypatch.delenv('K_SERVICE', raising=False)
+    monkeypatch.setattr(transport, '_credentials', None)
+    def denied(_):
+        raise PermissionError('Credential directory is inaccessible')
+    monkeypatch.setattr(transport.Path, 'exists', denied)
+    intake, metadata = resolve_ai.extract('My payment is pending')
+    assert intake.intent == 'PAYMENT'
+    assert metadata['fallback'] and metadata['provider'] == 'local'
+
 CUSTOMER = {'Authorization': 'Bearer resolve-customer-demo'}
 MERCHANT = {'Authorization': 'Bearer resolve-merchant-demo'}
 
