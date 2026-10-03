@@ -5,6 +5,9 @@ dist/
 __pycache__/
 .pytest_cache/
 *.db
+*.db-wal
+*.db-shm
+*.runner.lock
 tmp/
 *.log
 .npm-cache/
