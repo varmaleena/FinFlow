@@ -24,6 +24,7 @@ from .domain.policy_engine import evaluate
 from .domain.financial import reconcile, simulate
 from .services.llm import route_intent, generate_response, is_ai_available
 from .services.cognee import search_memory
+from .resolve import router as resolve_router, seed_resolve, tick as resolve_tick, enrich_outcomes
 
 ROOT = Path(__file__).resolve().parents[3]
 WORLD = json.loads((ROOT / 'data/seed/world.json').read_text(encoding='utf-8'))
@@ -56,6 +57,8 @@ def audit(db, case, event, detail, **extra):
     put(db, event_id, 'audit', case['merchant_id'], payload)
     log.info(json.dumps(payload))
 def auth(authorization: str | None = Header(default=None), x_merchant_id: str = Header(default='m_001')):
+    if os.getenv('RESOLVE_DEMO_MODE', 'true').lower() != 'true' and not os.getenv('DEMO_API_TOKEN'):
+        raise HTTPException(403, 'Legacy finance API is disabled without a private credential')
     token = os.getenv('DEMO_API_TOKEN', 'finflow-local-demo')
     if authorization != 'Bearer ' + token: raise HTTPException(401, 'Merchant authentication required')
     if x_merchant_id not in {m['id'] for m in WORLD['merchants']}: raise HTTPException(403, 'Unknown merchant')
@@ -92,18 +95,40 @@ async def worker():
                 db.commit()
         except Exception: log.exception('Monitor failed; will retry next interval')
 
+async def resolve_worker():
+    while True:
+        await asyncio.sleep(1)
+        try: await asyncio.to_thread(resolve_tick)
+        except Exception: log.exception('Resolve runner failed; persisted work will retry')
+
+async def explanation_worker():
+    while True:
+        await asyncio.sleep(2)
+        try: await asyncio.to_thread(enrich_outcomes)
+        except Exception: log.exception('Optional explanation failed; deterministic outcome remains available')
+
 @asynccontextmanager
 async def lifespan(app):
     Base.metadata.create_all(engine)
     with Session() as db:
         if not db.get(Record, 'tx_1001'): seed(db)
+        seed_resolve(db)
     task = asyncio.create_task(worker())
+    resolve_task = asyncio.create_task(resolve_worker())
+    explanation_task = asyncio.create_task(explanation_worker())
     yield
     task.cancel()
+    resolve_task.cancel()
+    explanation_task.cancel()
     try: await task
     except asyncio.CancelledError: pass
+    try: await resolve_task
+    except asyncio.CancelledError: pass
+    try: await explanation_task
+    except asyncio.CancelledError: pass
 
-app = FastAPI(title='FINFLOW', version='1.0.0', lifespan=lifespan)
+app = FastAPI(title='Paytm Resolve', version='2.0.0', lifespan=lifespan)
+app.include_router(resolve_router)
 app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:5173', 'http://127.0.0.1:5173'], allow_methods=['*'], allow_headers=['*'])
 
 @app.get('/v1/health')
@@ -340,7 +365,7 @@ def workflow_step(action_id: str, step: int = 0, x_finflow_secret: str | None = 
 def reset(merchant=Depends(auth)):
     with lock, Session() as db:
         db.execute(delete(Action).where(Action.merchant_id == merchant))
-        db.execute(delete(Record).where(Record.merchant_id == merchant))
+        db.execute(delete(Record).where(Record.merchant_id == merchant, ~Record.kind.like('resolve_%')))
         for tx in WORLD['transactions']:
             if tx['merchant_id'] == merchant: put(db, tx['id'], 'transaction', merchant, tx)
         for batch in WORLD['batches']:

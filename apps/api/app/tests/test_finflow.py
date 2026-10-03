@@ -1,6 +1,4 @@
 import os
-import tempfile
-os.environ['DATABASE_URL'] = 'sqlite:///' + tempfile.mktemp(suffix='.db')
 os.environ['MONITOR_INTERVAL'] = '3600'
 os.environ['WORKFLOW_SECRET'] = 'test-workflow-secret'
 os.environ.pop('N8N_WEBHOOK_URL', None)

@@ -9,3 +9,4 @@ tmp/
 *.log
 .npm-cache/
 *.tsbuildinfo
+output/

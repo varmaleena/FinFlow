@@ -1,0 +1,61 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: paytm-resolve
+  labels:
+    cloud.googleapis.com/location: asia-south1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: '1'
+        autoscaling.knative.dev/maxScale: '1'
+        run.googleapis.com/cpu-throttling: 'false'
+        run.googleapis.com/cloudsql-instances: REPLACE_WITH_PROJECT_REGION_SQL_INSTANCE
+    spec:
+      serviceAccountName: paytm-resolve@spry-catcher-509805-u4.iam.gserviceaccount.com
+      containerConcurrency: 1
+      timeoutSeconds: 180
+      containers:
+        - image: asia-south1-docker.pkg.dev/spry-catcher-509805-u4/paytm-resolve/app:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              cpu: '1'
+              memory: 512Mi
+          env:
+            - name: RESOLVE_DEMO_MODE
+              value: 'false'
+            - name: GOOGLE_GENAI_USE_VERTEXAI
+              value: 'true'
+            - name: GOOGLE_CLOUD_PROJECT
+              value: spry-catcher-509805-u4
+            - name: GOOGLE_CLOUD_LOCATION
+              value: global
+            - name: GEMINI_MODEL
+              value: gemini-3.8-flash
+            - name: RESOLVE_N8N_WEBHOOK_URL
+              value: REPLACE_WITH_PUBLISHED_N8N_WEBHOOK_URL
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: resolve-database-url
+                  key: latest
+            - name: RESOLVE_IDENTITIES
+              valueFrom:
+                secretKeyRef:
+                  name: resolve-identities
+                  key: latest
+            - name: RESOLVE_WORKFLOW_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: resolve-workflow-secret
+                  key: latest
+          startupProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 12

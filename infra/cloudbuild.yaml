@@ -1,0 +1,7 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'infra/Dockerfile', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/paytm-resolve/app:latest', '.']
+images:
+  - asia-south1-docker.pkg.dev/$PROJECT_ID/paytm-resolve/app:latest
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -3,7 +3,9 @@ from sqlalchemy import create_engine, Column, String, JSON, UniqueConstraint
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./finflow.db')
-engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False} if DATABASE_URL.startswith('sqlite') else {})
+if os.getenv('K_SERVICE') and DATABASE_URL.startswith('sqlite'):
+    raise RuntimeError('Cloud Run requires a persistent external DATABASE_URL; SQLite on its ephemeral filesystem is disabled.')
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args={'check_same_thread': False, 'timeout': 30} if DATABASE_URL.startswith('sqlite') else {})
 Session = sessionmaker(bind=engine, expire_on_commit=False)
 Base = declarative_base()
 
